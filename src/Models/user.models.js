@@ -1,6 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { use } from "react";
 
 const userSchema = new Schema(
     {
@@ -48,31 +49,32 @@ const userSchema = new Schema(
 
 );
 
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", function(next) {
     if(!this.isModified("password")) return next()
 
-    this.password= bcrypt.hash(this.password,10)
+    this.password = bcrypt.hash("password",10)
     next()
-});
+})
 
 userSchema.method.isPasswordCorrect = async function (password) {
-   return await bcrypt.compare("password",this.password) 
+    return await bcrypt.compare("password",this.password)
 }
-export const User = mongoose.model("User",userSchema);
+
 
 userSchema.method.generateAccessToken = async function () {
     return jwt.sign(
         {
             _id : this._id,
             username : this.username,
-            fullname : this.fullname,
-            email : this.email
+            email : this.email,
+            fullname : this. fullname
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
             expiresIn : process.env.ACCESS_TOKEN_EXPIRY
         }
     )
+    
 }
 
 userSchema.method.generateRefreshToken = async function () {
@@ -87,5 +89,6 @@ userSchema.method.generateRefreshToken = async function () {
     )
 }
 
+export const User = mongoose.model("User",userSchema);
 
  // here don't write like () => {} because arrow function has no context

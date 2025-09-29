@@ -2,13 +2,14 @@
 import dotenv from "dotenv";
 import ConnectDB from "./db/index.js";
 import { connect } from "mongoose";
+import { app } from "./app.js";
 
 dotenv.config({
     path: '../.env'
 })
 
 ConnectDB()
-.then(()=>{
+.then(()=>{                       // Promises
     app.on("ERROR WHILE RUNNING APP: ", (error)=>{
         console.log("ERROR: ", error)
         throw error
@@ -18,7 +19,7 @@ ConnectDB()
     })
 })
 .catch((error)=>{
-    console.log("MONGODB CONNECTION FAILED !!!!")
+    console.log("MONGODB CONNECTION FAILED !!!!", error)
 })
 
 
