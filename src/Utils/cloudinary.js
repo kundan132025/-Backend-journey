@@ -15,6 +15,8 @@ const fileUploadOnCloudinary = async (localfilePath) => {
             resource_type : "auto"
         })
         console.log("File Uploded !!", response.url)
+        
+        fs.unlinkSync(localfilePath);
         return response
         
     } catch (error) {

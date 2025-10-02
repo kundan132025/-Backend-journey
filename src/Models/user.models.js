@@ -1,7 +1,6 @@
 import mongoose, {Schema} from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { use } from "react";
 
 const userSchema = new Schema(
     {
@@ -26,8 +25,7 @@ const userSchema = new Schema(
         },
         password : {
             type : String,   // why we store password in the string we should store it in the encrypted format
-            required : [true, "password is required"],
-            unique : true
+            required : [true, "password is required"]
         },
         avatar : {
             type : String,   // cloudnary url
@@ -41,7 +39,10 @@ const userSchema = new Schema(
             type : Schema.Types.ObjectId,
             ref : "Video"
             }
-        ]
+        ],
+        refreshToken : {
+            type : String
+        }
     },
 
     {timestamps : true}
@@ -49,19 +50,19 @@ const userSchema = new Schema(
 
 );
 
-userSchema.pre("save", function(next) {
+userSchema.pre("save", async function(next) {
     if(!this.isModified("password")) return next()
 
-    this.password = bcrypt.hash("password",10)
+    this.password = await bcrypt.hash("password",10)
     next()
 })
 
-userSchema.method.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare("password",this.password)
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare("password", this.password)
 }
 
 
-userSchema.method.generateAccessToken = async function () {
+userSchema.methods.generateAccessToken =  function () {        // Here intially i wrote async so problem i faced is beacuse of async it return promises and when these promises goes into the .cookies it got converted into the {} therefor it not set cookie in browser
     return jwt.sign(
         {
             _id : this._id,
@@ -77,7 +78,7 @@ userSchema.method.generateAccessToken = async function () {
     
 }
 
-userSchema.method.generateRefreshToken = async function () {
+userSchema.methods.generateRefreshToken =  function () {
     return jwt.sign(
         {
             _id : this._id,
